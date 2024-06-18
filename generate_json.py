@@ -7,8 +7,17 @@ def generate_json():
     for root, dirs, files in os.walk("textures"):
         if root == "textures":
             continue
-        key = root.split("/")[-1]
-        textures[key] = sorted([file for file in files if file.endswith(".png")])
+        folder = root.split("/")[-1]
+        denoms = {}
+        for file in files:
+            if not file.endswith(".png"):
+                continue
+            denom = file[:4]
+            if denom not in denoms:
+                denoms[denom] = []
+            denoms[denom].append(file)
+
+        textures[folder] = [sorted(denoms[d]) for d in sorted(denoms)]
 
     sorted_textures = {k: textures[k] for k in sorted(textures)}
 
