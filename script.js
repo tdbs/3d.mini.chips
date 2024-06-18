@@ -110,35 +110,45 @@ document.addEventListener('DOMContentLoaded', function () {
         const left_face = 7.70575 / 84.823;
         const right_face = (7.70575 + 27) / 84.823;
 
-        if (textureSet && textureSet.length > 0) {
+        if (textureSet && Object.keys(textureSet).length > 0) {
+            max_alts = 0;
             chipMaterials = []
-            x = -spacing / 2 * (textureSet.length - 1);
-            textureSet.forEach(texture => {
-                const chipMaterial = new BABYLON.StandardMaterial("material", scene);
-                chipMaterial.diffuseTexture = new BABYLON.Texture(texture_path + set + '/' + texture);
-                chipMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
-                chipMaterials.push(chipMaterial);
-
-                for (let i = 0; i < 10; i++) {
-                    const chip = BABYLON.MeshBuilder.CreateCylinder("chip" + i, {
-                        diameter: chipDiameter,
-                        height: chipHeight,
-                        tessellation: 96,
-                        faceUV: [
-                            new BABYLON.Vector4(right_face, top_edge, left_face, 1),
-                            new BABYLON.Vector4(0, 0, 1, top_edge),
-                            new BABYLON.Vector4(left_face, top_edge, right_face, 1),
-                        ],
-                    }, scene);
-
-                    chip.material = chipMaterial;
-                    chip.position.x = x;
-                    chip.position.y = chipHeight / 2 + i * chipHeight;
-                    chip.rotation.y = Math.random() * (2 * Math.PI);
-                    shadowGenerator.addShadowCaster(chip);
-
-                    currentChips.push(chip);
+            x = -spacing / 2 * (Object.keys(textureSet).length - 1);
+            z = 0;
+            Object.values(textureSet).forEach(denom => {
+                if (denom.length > max_alts) {
+                    max_alts = denom.length;
                 }
+                Object.values(denom).forEach(texture => {
+                    const chipMaterial = new BABYLON.StandardMaterial("material", scene);
+                    chipMaterial.diffuseTexture = new BABYLON.Texture(texture_path + set + '/' + texture);
+                    chipMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+                    chipMaterials.push(chipMaterial);
+
+                    for (let i = 0; i < 10; i++) {
+                        const chip = BABYLON.MeshBuilder.CreateCylinder("chip" + i, {
+                            diameter: chipDiameter,
+                            height: chipHeight,
+                            tessellation: 96,
+                            faceUV: [
+                                new BABYLON.Vector4(right_face, top_edge, left_face, 1),
+                                new BABYLON.Vector4(0, 0, 1, top_edge),
+                                new BABYLON.Vector4(left_face, top_edge, right_face, 1),
+                            ],
+                        }, scene);
+
+                        chip.material = chipMaterial;
+                        chip.position.x = x;
+                        chip.position.z = z;
+                        chip.position.y = chipHeight / 2 + i * chipHeight;
+                        chip.rotation.y = Math.random() * (2 * Math.PI);
+                        shadowGenerator.addShadowCaster(chip);
+
+                        currentChips.push(chip);
+                    }
+                    z += spacing
+                });
+                z = 0;
                 x += spacing
             });
 
@@ -156,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }, scene);
 
                 chip.material = chipMaterials[Math.floor(Math.random() * chipMaterials.length)];
-                chip.position.z = 75
+                chip.position.z = spacing + max_alts * spacing;
                 chip.position.y = chipHeight / 2 + i * chipHeight;
                 chip.rotation.y = Math.random() * (2 * Math.PI);
                 shadowGenerator.addShadowCaster(chip);
