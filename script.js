@@ -110,6 +110,24 @@ document.addEventListener('DOMContentLoaded', function () {
         const left_face = 7.70575 / 84.823;
         const right_face = (7.70575 + 27) / 84.823;
 
+        let selectedTextures = new Map(Array.from(document.querySelectorAll('input[type=checkbox]'))
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => [checkbox.value, true]));
+
+        filteredTextureSet = []
+        Object.keys(textureSet).forEach(index => {
+            filteredDenom = []
+            textureSet[index].forEach(texture => {
+                if (selectedTextures.has(texture)) {
+                    filteredDenom.push(texture);
+                }
+            });
+            if (filteredDenom.length > 0) {
+                filteredTextureSet.push(filteredDenom);
+            }
+        });
+        textureSet = filteredTextureSet;
+
         if (textureSet && Object.keys(textureSet).length > 0) {
             max_alts = 0;
             chipMaterials = []
@@ -190,6 +208,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             const buttonContainer = document.getElementById('buttonContainer');
+            const checkboxContainer = document.getElementById('checkboxContainer');
+
             Object.keys(data).forEach(folder => {
                 const button = document.createElement('button');
                 button.innerText = folder;
@@ -197,14 +217,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 button.addEventListener('click', () => {
                     const textureSet = data[folder] || [];
+                    checkboxContainer.innerHTML = '';
+
+                    Object.values(textureSet).forEach(denom => {
+                        Object.values(denom).forEach(texture => {
+                            const checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.value = texture;
+                            checkbox.id = texture;
+                            checkbox.checked = true; // All checkboxes selected by default
+                            checkboxContainer.appendChild(checkbox);
+
+                            const label = document.createElement('label');
+                            label.htmlFor = texture;
+                            label.innerText = texture.replace('.png', '').replace(/^0+/, '');
+                            checkboxContainer.appendChild(label);
+
+                            checkbox.addEventListener('change', () => {
+                                createChips(folder, textureSet);
+                            });
+
+                            const br = document.createElement('br');
+                            checkboxContainer.appendChild(br); // To display checkboxes vertically
+                        });
+                    });
+
                     createChips(folder, textureSet);
                 });
             });
 
-            if (Object.keys(data).length > 0) {
-                const initialFolder = Object.keys(data)[0];
-                const textureSet = data[initialFolder] || [];
-                createChips(initialFolder, textureSet);
+            if (Object.keys(data).length > 0) {            
+                document.querySelector('button').click();
             }
         })
         .catch(error => console.error('Error fetching textures:', error));

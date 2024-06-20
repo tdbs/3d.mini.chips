@@ -21,24 +21,39 @@
             touch-action: none;
         }
 
-        #overlay {
+        .overlay {
             position: absolute;
-            top: 10px;
-            left: 10px;
             z-index: 100;
             background-color: white;
             padding: 10px;
             border: 1px solid black;
+            max-height: 90%;
+            overflow-y: auto;
         }
+
+        #set_selector {
+            top: 10px;
+            left: 10px;
+        }
+
+        #texture_selector {
+            top: 60px;
+            left: 10px;
+        }
+
         button {
             font-size: 20px;
         }
+
     </style>
 </head>
 
 <body>
-    <div id="overlay">
+    <div id="set_selector" class="overlay">
         <div id="buttonContainer"></div>
+    </div>
+    <div id="texture_selector" class="overlay">
+        <div id="checkboxContainer"></div>
     </div>
     <canvas id="renderCanvas"></canvas>
 </body>
