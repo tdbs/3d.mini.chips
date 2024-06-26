@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const engine = new BABYLON.Engine(canvas, true);
     let scene;
     let shadowGenerator;
+    let selections = new Map();
 
     function createScene() {
         scene = new BABYLON.Scene(engine);
@@ -214,6 +215,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 const button = document.createElement('button');
                 button.innerText = folder;
                 buttonContainer.appendChild(button);
+                selections.set(folder, new Map());
+
+                Object.values(data[folder]).forEach(denom => {
+                    Object.values(denom).forEach(texture => {
+                        selections.get(folder).set(texture, true); // All textures selected by default
+                    });
+                });
 
                 button.addEventListener('click', () => {
                     const textureSet = data[folder] || [];
@@ -225,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             checkbox.type = 'checkbox';
                             checkbox.value = texture;
                             checkbox.id = texture;
-                            checkbox.checked = true; // All checkboxes selected by default
+                            checkbox.checked = selections.get(folder).get(texture);
                             checkboxContainer.appendChild(checkbox);
 
                             const label = document.createElement('label');
@@ -234,6 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             checkboxContainer.appendChild(label);
 
                             checkbox.addEventListener('change', () => {
+                                selections.get(folder).set(texture, checkbox.checked);
                                 createChips(folder, textureSet);
                             });
 
