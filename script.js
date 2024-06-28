@@ -104,12 +104,16 @@ document.addEventListener('DOMContentLoaded', function () {
         currentChips = [];
 
         const chipDiameter = 27;
-        const chipHeight = 4.3;
+        const chipHeight = 4.125;
+        const chipPerimeter = chipDiameter * Math.PI;
+        const ninety_degrees_length = chipDiameter * 90 / 360 * Math.PI;
+        const space_to_face = ninety_degrees_length - chipDiameter/2;
         const texture_path = 'textures/';
         const spacing = 10 + chipDiameter;
-        const top_edge = 4.3 / (27 + 4.3);
-        const left_face = 7.70575 / 84.823;
-        const right_face = (7.70575 + 27) / 84.823;
+        // percentages (0-1) for UV mapping
+        const top_edge = chipHeight / (chipDiameter + chipHeight);
+        const left_face = space_to_face / chipPerimeter;
+        const right_face = (space_to_face + chipDiameter) / chipPerimeter;
 
         let selectedTextures = new Map(Array.from(document.querySelectorAll('input[type=checkbox]'))
             .filter(checkbox => checkbox.checked)
