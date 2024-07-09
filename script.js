@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         currentChips = [];
 
         const chipDiameter = 27;
-        const chipHeight = 4.125;
+        const chipHeight = 4.15;
         const chipPerimeter = chipDiameter * Math.PI;
         const ninety_degrees_length = chipDiameter * 90 / 360 * Math.PI;
         const space_to_face = ninety_degrees_length - chipDiameter/2;
