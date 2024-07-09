@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let scene;
     let shadowGenerator;
     let selections = new Map();
+    let sort_mode = 0;
 
     function createScene() {
         scene = new BABYLON.Scene(engine);
@@ -135,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (textureSet && Object.keys(textureSet).length > 0) {
             max_alts = 0;
-            chipMaterials = []
+            chipMaterials = [];
             x = -spacing / 2 * (Object.keys(textureSet).length - 1);
             z = 0;
             Object.values(textureSet).forEach(denom => {
@@ -146,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const chipMaterial = new BABYLON.StandardMaterial("material", scene);
                     chipMaterial.diffuseTexture = new BABYLON.Texture(texture_path + set + '/' + texture);
                     chipMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
-                    chipMaterials.push(chipMaterial);
+                    chipMaterials.push([chipMaterial, textureValue(texture)]);
 
                     for (let i = 0; i < 10; i++) {
                         const chip = BABYLON.MeshBuilder.CreateCylinder("chip" + i, {
@@ -176,6 +177,21 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             // dirty stack
+            dirts = [];
+            for (let i = 0; i < 20; i++) {
+                material = chipMaterials[Math.floor(Math.random() * chipMaterials.length)];
+                dirts.push(material);
+            };
+            // sort my mode
+            if (sort_mode != 0) {
+                dirts.sort(function (a, b) {
+                    if (sort_mode == 1) {
+                        return a[1] - b[1];
+                    } else {
+                        return b[1] - a[1];
+                    }
+                });
+            }
             for (let i = 0; i < 20; i++) {
                 const chip = BABYLON.MeshBuilder.CreateCylinder("chip" + i, {
                     diameter: chipDiameter,
@@ -188,10 +204,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     ],
                 }, scene);
 
-                chip.material = chipMaterials[Math.floor(Math.random() * chipMaterials.length)];
+                chip.material = dirts[i][0];
                 chip.position.z = spacing + max_alts * spacing;
                 chip.position.y = chipHeight / 2 + i * chipHeight;
                 chip.rotation.y = Math.random() * (2 * Math.PI);
+                chip.isPickable = true;
+                chip.actionManager = new BABYLON.ActionManager(scene);
+                chip.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function (evt) {
+                    sort_mode = (sort_mode + 1) % 3;
+                    createChips(set, textureSet);
+                }));
+
                 shadowGenerator.addShadowCaster(chip);
 
                 currentChips.push(chip);
@@ -265,3 +288,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => console.error('Error fetching textures:', error));
 });
+
+function textureValue(str) {
+    return parseInt(str.replace('.png', '').replace(/^0+/, ''));
+}
